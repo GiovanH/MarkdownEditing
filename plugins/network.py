@@ -7,6 +7,11 @@ Exported commands:
 """
 import sublime
 import re
+import traceback
+import threading
+import queue
+import urllib
+import urllib.request
 
 from .view import MdeTextCommand
 from .view import find_by_selector_in_regions
@@ -16,6 +21,61 @@ from .asynctasks import TaskQueue
 
 barelink_scope_name = "meta.link.inet.markdown"
 
+
+class QueueWorker(threading.Thread):
+    """A worker that executes a specific function on all the work
+    in a given queue."""
+
+    def __init__(self, queue, fn, *args, **kwargs):
+        """Summary
+        
+        Args:
+            queue: Queue to draw work from.
+            fn: Function executed
+            *args: Passthough to threading.Thread
+            **kwargs: Passthough to threading.Thread
+        """
+        self.queue = queue
+        self.fn = fn
+        super().__init__(*args, **kwargs)
+
+    def run(self):
+        """Run fn on items popped from q until queue is empty."""
+        while True:
+            try:
+                work = self.queue.get(timeout=3)  # 3s timeout
+            except queue.Empty:
+                return
+            self.fn(*work)
+            self.queue.task_done()
+
+def do_work_helper(workfn, inputs, max_threads=8):
+    """Use threads and a queue to parallelize work done by a function."""
+    # Create a queue. (Everything following has q in the namespace)
+    q = queue.Queue()
+
+    results = []
+
+    def _process(*args):
+        try:
+            ret = workfn(*args)
+        except Exception as e:
+            traceback.print_exc()
+            ret = e
+        results.append(ret)
+
+    for args in inputs:
+        # Replace with actual function arguments
+        q.put_nowait(args)
+
+    # Start threads
+    for _ in range(max_threads):
+        QueueWorker(q, _process).start()
+
+    # Block until the queue is empty.
+    q.join()  
+
+    return results
 
 class MdeConvertBareLinkToMdLinkCommand(MdeTextCommand):
     """Convert an inline link to reference."""
@@ -37,10 +97,16 @@ class MdeConvertBareLinkToMdLinkCommand(MdeTextCommand):
         view = self.view
         valid_regions = find_by_selector_in_regions(view, view.sel(), barelink_scope_name)
 
-        def getTitleFromUrlJob(link_href):
-            import urllib.request
+        def getInfoFromUrlJob(link_href):
+            try:
+                resp = urllib.request.urlopen(link_href)
+            except urllib.error.HTTPError as e:
+                print(link_href)
+                if e.url != link_href:
+                    print(link_href, "=/=", e.url, "Redirect?")
+                    url_redirects[link_href] = e.url
+                raise
 
-            resp = urllib.request.urlopen(link_href)
             content_type = {a: b for a, b in resp.getheaders()}.get("Content-Type")
             if content_type and not content_type.startswith("text"):
                 url_titles[link_href] = None
@@ -66,19 +132,20 @@ class MdeConvertBareLinkToMdLinkCommand(MdeTextCommand):
                 suggested_title = suggest_default_link_name(
                     "", url_redirects.get(link_href, link_href), False
                 )
-                try:
-                    getTitleFromUrlJob(link_href)
-                    if url_titles[link_href] is None:
-                        raise TypeError("Link '{}' has NoneType as value".format(link_href))
+                # print("Getting info from", link_href)
+                # try:
+                #     getInfoFromUrlJob(link_href)
+                # except Exception as e:
+                #     print(e)
 
+                print("Processing", link_href)
+                if url_titles.get(link_href):
                     title = url_titles[link_href] + " (" + suggested_title + ")"
-                    link_href = url_redirects.get(link_href) or link_href
-                except TypeError as e:
-                    print(e)
-                    continue
-                except Exception as e:
-                    print(e)
+                else:
+                    print("Link '{}' has NoneType as value".format(link_href))
                     title = suggested_title
+
+                link_href = url_redirects.get(link_href) or link_href
                 view.replace(edit, link_region, "[" + title + "](" + link_href + ")")
 
         # This doesn't work, because we can't execute edit tasks after the run
@@ -93,12 +160,19 @@ class MdeConvertBareLinkToMdLinkCommand(MdeTextCommand):
 
         # thread_queue.execute_async(finish)
 
-        for link_region in valid_regions:
-            link_href = view.substr(link_region)
-            try:
-                getTitleFromUrlJob(link_href)
-            except:
-                pass
+        do_work_helper(
+            getInfoFromUrlJob,
+            [(view.substr(link_region),) for link_region in valid_regions]
+        )
+
+        # for link_region in valid_regions:
+
+        #     link_href = view.substr(link_region)
+        #     try:
+        #         getTitleFromUrlJob(link_href)
+        #     except Exception:
+        #         traceback.print_exc()
+        #         pass
 
         finish()
 

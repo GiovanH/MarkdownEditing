@@ -70,6 +70,20 @@
 	},
 	"rules":
 	[
+		//
+		// Frontmatter
+		//
+
+		{
+			"name": "Frontmatter: Mapping Key Names",
+			"scope": "meta.mapping.key string, meta.mapping.key constant.language, meta.mapping.key constant.numeric",
+			"foreground": "#6700B9"
+		},
+
+		//
+		// Common
+		//
+
 		{
 			"name": "Comments",
 			"scope": "comment, comment punctuation",
@@ -263,7 +277,7 @@
 		},
 		{
 			"name": "Markdown: Link Description",
-			"scope": "meta.link.inline.description, meta.link.reference.description, meta.image.reference.description",
+			"scope": "(meta.image.inline.description.markdown, meta.image.reference.description.markdown, meta.link.inline.description.markdown, meta.link.reference.description.markdown, meta.link.reference.literal.description.markdown, meta.link.reference.wiki.description.markdown) - comment - constant - entity - punctuation - string - markup.strikethrough",
 			"foreground": "#333333"
 		},
 		{
@@ -272,8 +286,18 @@
 			"foreground": "#AAAAAA"
 		},
 		{
+			"name": "Markdown: Link URL Separators",
+			"scope": "markup.underline.link punctuation.separator",
+			"foreground": "#AAAAAA"
+		},
+		{
 			"name": "Markdown: Plain Link",
-			"scope": "meta.link.inet markup.underline.link, meta.link.email.lt-gt markup.underline.link",
+			"scope": "meta.link.inet markup.underline.link, meta.link.email markup.underline.link",
+			"foreground": "#444488"
+		},
+		{
+			"name": "Markdown: Plain Link Separators",
+			"scope": "meta.link.inet markup.underline.link punctuation.separator, meta.link.email markup.underline.link punctuation.separator",
 			"foreground": "#444488"
 		},
 		{
@@ -358,6 +382,11 @@
 			"scope": "markup.strikethrough markup.kbd.content",
 			"foreground": "#B7B7B7",
 			"background": "#E6E6E6"
+		},
+		{
+			"name": "Markdown: Underline",
+			"scope": "markup.underline",
+			"font_style": "underline"
 		},
 
 		//

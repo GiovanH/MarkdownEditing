@@ -21,6 +21,8 @@
 			s/^#{3}/    /g;						# indent atx heading
 			s/^#{2}/  /g;						# indent atx heading
 			s/^#{1}//g;							# indent atx heading
+			s/^(.+?)=+\s*\z/$1/g;				# indent SETEXT heading 1
+			s/^(.+?)-+\s*\z/  $1/g;				# indent SETEXT heading 2
 		]]></string>
 		<key>showInIndexedSymbolList</key>
 		<integer>1</integer>
@@ -32,6 +34,8 @@
 			s/^\s*//g;							# strip leading whitespace
 			s/\s+#+\s*\z//g;					# strip trailing hashes
 			s/\s+/ /g;							# convert (multiple) whitespace to one space
+			s/^(.+?)=+\s*$/# $1/g;				# convert SETEXT to ATX heading 1
+			s/^(.+?)-+\s*$/## $1/g;				# convert SETEXT to ATX heading 2
 		]]></string>
 	</dict>
 </dict>

@@ -22,6 +22,7 @@ import urllib.parse
 
 from .view import MdeTextCommand
 from .view import MdeViewEventListener
+from .view import find_by_selector_in_regions
 
 refname_scope_name = "entity.name.reference.link.markdown"
 definition_scope_name = "meta.link.reference.def.markdown"
@@ -91,9 +92,35 @@ def getMarkers(view, name=""):
     return ids
 
 
+def getReferences2(view):
+    """Get a dictionary of all references in the document.
+    Only includes real references with scope definition_scope_name, not footnotes.
+
+    Returns:
+        dict: {name: link} mapping
+    """
+    pattern = re.compile(r"\[(.+)\]:\s+(?:<([^>]+)>|(\S+))", re.MULTILINE)
+
+    ret = {}
+    for definition_line in view.find_by_selector(definition_scope_name):
+        for reference_def in pattern.finditer(view.substr(definition_line)):
+            name, angled_link, unquoted_link = reference_def.groups()
+            assert not ret.get(name)
+            ret[name] = angled_link or unquoted_link
+    return ret
+
+
 def getReferences(view, name=""):
-    """Find all reference definitions."""
-    # returns {name -> Region}
+    """Find all reference definitions.
+
+    Args:
+        name (str, optional): Specific name to filter for
+
+    Returns:
+        dict: {name -> Obj} mapping where Objs have a
+              regions attribute with a list of regions
+    """
+
     refs = []
     name = re.escape(name)
     if name == "":
@@ -114,7 +141,7 @@ def getReferences(view, name=""):
 
 def isMarkerDefined(view, name):
     """Return True if a marker is defined by that name."""
-    return len(getReferences(view, name)) > 0
+    return getReferences2(view).get(name) is not None
 
 
 def getCurrentScopeRegion(view, pt):
@@ -323,15 +350,9 @@ def suggest_default_link_name(name, link, image):
 
 def check_for_link(view, link):
     """Check if the link already defined. Return the name if so."""
-    refs = getReferences(view)
-    link = link.strip()
-    for name in refs:
-        link_begin = findScopeFrom(view, refs[name].regions[0].begin(), ref_link_scope_name)
-        reg = getCurrentScopeRegion(view, link_begin)
-        found_link = view.substr(reg).strip()
-        if found_link == link:
-            return name
-    return None
+    links_by_name = getReferences2(view)
+    names_by_link = {v: k for k, v in links_by_name.items()}
+    return names_by_link.get(link)
 
 
 class MdeReferenceNewReferenceCommand(MdeTextCommand):
@@ -402,13 +423,13 @@ class MdeReferenceNewImageCommand(MdeTextCommand):
 
 def get_next_footnote_marker(view):
     """Get the number of the next footnote."""
-    refs = getReferences(view)
+    refs = getReferences2(view)
 
     footnotes = []
-    for ref in refs:
-        if ref[0] == "^":
+    for refname in refs.keys():
+        if refname[0] == "^":
             try:
-                footnotes.append(int(ref[1:]))
+                footnotes.append(int(refname[1:]))
             except ValueError:
                 pass
 
@@ -532,10 +553,10 @@ class MdeReferenceOrganizeCommand(MdeTextCommand):
 
         # reorder
         markers = getMarkers(view)
-        marker_order = sorted(
+        reference_order = sorted(
             markers.keys(), key=lambda marker: min(markers[marker].regions, key=lambda reg: reg.a).a
         )
-        marker_order = dict(zip(marker_order, range(0, len(marker_order))))
+        reference_order = dict(zip(reference_order, range(0, len(reference_order))))
 
         refs = getReferences(view)
         flatrefs = []
@@ -551,9 +572,21 @@ class MdeReferenceOrganizeCommand(MdeTextCommand):
                     flatrefs.append((name, view.substr(line_reg).strip("\n")))
                 sel.add(line_reg)
 
+        sorting_funcs = {
+            "reference_order": lambda x: reference_order[x[0].lower()]
+            if x[0].lower() in reference_order
+            else 9999,
+            "alphabetical": lambda x: x[0].lower(),
+            "numeric": lambda x: [
+                int(p) if p.isnumeric() else p for p in re.split(r"[ _.-]", x[0].lower())
+            ],
+        }
+        settings = view.settings()
+
         flatfns.sort(key=operator.itemgetter(0))
         flatrefs.sort(
-            key=lambda x: marker_order[x[0].lower()] if x[0].lower() in marker_order else 9999
+            key=sorting_funcs[settings.get("mde.ref_organize_sort", "reference_order")],
+            reverse=settings.get("mde.ref_organize_sort_reverse", False),
         )
 
         view.run_command("left_delete")
@@ -608,7 +641,7 @@ class MdeReferenceOrganizeCommand(MdeTextCommand):
         lower_refs = [ref.lower() for ref in refs]
         missings = []
         for ref in refs:
-            if ref not in marker_order:
+            if ref not in reference_order:
                 missings.append(refs[ref].label)
         if len(missings) > 0:
             if len(missings) > 1:
@@ -707,11 +740,20 @@ def convert2ref(view, edit, link_span, name, omit_name=False):
     view.sel().add(link_span)
     view.show_at_center(link_span)
 
-    _viewsize = view.size()
-    view.insert(edit, _viewsize, "[%s]: %s\n" % (name, link))
-    reference_span = sublime.Region(_viewsize + 1, _viewsize + 1 + len(name))
-    view.sel().add(reference_span)
-    return offset
+    link_for_name = getReferences2(view).get(name)
+    if link_for_name:
+        if link_for_name != link:
+            raise Exception("Tried to insert a different link with the same name")
+        else:
+            # Skip insertion (no need, name already exists with same link)
+            return 0  # No insertion, no offset.
+    else:
+        _viewsize = view.size()
+        view.insert(edit, _viewsize, "[%s]: %s\n" % (name, link))
+        reference_span = sublime.Region(_viewsize + 1, _viewsize + 1 + len(name))
+        view.sel().add(reference_span)
+
+        return offset
 
 
 class MdeConvertInlineLinkToReferenceCommand(MdeTextCommand):
@@ -727,7 +769,7 @@ class MdeConvertInlineLinkToReferenceCommand(MdeTextCommand):
     def run(self, edit, name=None):
         """Run command callback."""
         view = self.view
-        pattern = r"\[([^\]]+)\]\((?!#)([^\)]+)\)"
+        re_link_or_embed = r"\[([^\]]+)\]\((?!#)([^\)]+)\)"
 
         # Remove all whitespace at the end of the file
         whitespace_at_end = view.find(r"\s*\z", 0)
@@ -738,6 +780,8 @@ class MdeConvertInlineLinkToReferenceCommand(MdeTextCommand):
             view.insert(edit, view.size(), "\n")
 
         link_spans = []
+        links_by_name = getReferences2(view)
+        names_by_link = {v: k for k, v in links_by_name.items()}
 
         for sel in view.sel():
             if not view.match_selector(sel.b, "meta.link.inline"):
@@ -745,7 +789,7 @@ class MdeConvertInlineLinkToReferenceCommand(MdeTextCommand):
             start = findScopeFrom(view, sel.b, marker_begin_scope_name, backwards=True)
             end = findScopeFrom(view, sel.b, marker_end_scope_name) + 1
             text = view.substr(sublime.Region(start, end))
-            m = re.match(pattern, text)
+            m = re.match(re_link_or_embed, text)
             if m is None:
                 continue
             text = m.group(1)
@@ -753,21 +797,33 @@ class MdeConvertInlineLinkToReferenceCommand(MdeTextCommand):
             link_span = sublime.Region(start + m.span(2)[0] - 1, start + m.span(2)[1] + 1)
             if is_url(link):
                 link = mangle_url(link)
-            if len(link) > 0:
-                if name is None:
-                    # If link already exists, reuse existing reference
-                    suggested_name = check_for_link(view, link)
-                    if suggested_name is None:
-                        is_image = view.substr(start - 1) == "!" if start > 0 else False
-                        suggested_name = suggest_default_link_name(text, link, is_image)
+            if len(link) <= 0:
+                continue
+            # Set name based on link.
+            # If link already exists, reuse existing reference
+            name = None
+            if names_by_link.get(link):
+                name = names_by_link.get(link)
+            else:
+                # Link is not referenced. Generate name.
+                is_image = view.substr(start - 1) == "!" if start > 0 else False
+                name = name or suggest_default_link_name(text, link, is_image)
+            # If name is already in use by a different link, change our name.
+            i = 1
+            name_ = name
+            while links_by_name.get(name, link) != link and i < 999:
+                i += 1
+                name = name_ + str(i)
 
-                _name = name if name is not None else suggested_name
-                link_spans.append((link_span, _name, _name == text))
+            link_spans.append((link_span, name, name == text))
+            # Update local dict for batch operations
+            links_by_name[name] = link
+            names_by_link[link] = name
 
         offset = 0
-        for link_span in link_spans:
-            _link_span = sublime.Region(link_span[0].a + offset, link_span[0].b + offset)
-            offset -= convert2ref(view, edit, _link_span, link_span[1], link_span[2])
+        for span, name, name_is_text in link_spans:
+            _link_span = sublime.Region(span.a + offset, span.b + offset)
+            offset -= convert2ref(view, edit, _link_span, name, name_is_text)
 
 
 class MdeConvertInlineLinksToReferencesCommand(MdeTextCommand):
@@ -877,7 +933,6 @@ if hasattr(sublime, "KIND_ID_MARKUP"):
                 completions,
                 sublime.INHIBIT_WORD_COMPLETIONS | sublime.INHIBIT_EXPLICIT_COMPLETIONS,
             )
-
 
 else:
 

@@ -748,8 +748,8 @@ bar
 
 Foo
 ---
-| <- markup.heading.2.setext.markdown punctuation.definition.heading.setext.markdown
-|^^ markup.heading.2.setext.markdown punctuation.definition.heading.setext.markdown
+| <- markup.heading.2.markdown punctuation.definition.heading.setext.markdown
+|^^ markup.heading.2.markdown punctuation.definition.heading.setext.markdown
 bar
 | <- meta.paragraph.markdown
 
@@ -1055,24 +1055,267 @@ this must not be bold italic***
 
 # TEST: SETEXT HEADINGS #######################################################
 
-Alternate Heading
+SETEXT Heading Level 1
+| <- markup.heading.1.markdown entity.name.section.markdown
 =================
-|^^^^^^^^^^^^^^^^ markup.heading.1 punctuation.definition
-|                ^ meta.whitespace.newline
+| <- markup.heading.1.markdown punctuation.definition.heading.setext.markdown
+|^^^^^^^^^^^^^^^^ markup.heading.1.markdown punctuation.definition.heading.setext.markdown
+|                ^ markup.heading.1.markdown meta.whitespace.newline.markdown
 
-heading underlined with dashes
+SETEXT Heading Level 2
+| <- markup.heading.2.markdown entity.name.section.markdown
 ------------------------------
-| ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ markup.heading.2 punctuation.definition.heading
+| <- markup.heading.2.markdown punctuation.definition.heading.setext.markdown
+| ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ markup.heading.2.markdown punctuation.definition.heading.setext.markdown
+|                             ^ markup.heading.2.markdown meta.whitespace.newline.markdown - punctuation
 
 underlined heading followed by a separator
 -------------------
 ------
-| <- meta.separator - markup.heading
+| <- meta.separator.thematic-break.markdown - markup.heading
 
 underlined heading followed by another one that should be treated as a normal paragraph
 ==================
 =====
-| <- - markup.heading
+| <- meta.paragraph.markdown - markup.heading
+
+https://spec.commonmark.org/0.30/#example-80
+
+Foo *bar*
+| <- markup.heading.1.markdown entity.name.section.markdown
+|^^^^^^^^^ markup.heading.1.markdown entity.name.section.markdown
+|   ^^^^^ markup.italic.markdown
+=========
+| <- markup.heading.1.markdown punctuation.definition.heading.setext.markdown
+|^^^^^^^^ markup.heading.1.markdown punctuation.definition.heading.setext.markdown
+|        ^ markup.heading.1.markdown meta.whitespace.newline.markdown
+
+Foo *bar*
+| <- markup.heading.2.markdown entity.name.section.markdown
+|^^^^^^^^^ markup.heading.2.markdown entity.name.section.markdown
+|   ^^^^^ markup.italic.markdown
+---------
+| <- markup.heading.2.markdown punctuation.definition.heading.setext.markdown
+|^^^^^^^^ markup.heading.2.markdown punctuation.definition.heading.setext.markdown
+|        ^ markup.heading.2.markdown meta.whitespace.newline.markdown
+
+Foo *bar
+| <- markup.heading.1.markdown entity.name.section.markdown
+|^^^^^^^^^ markup.heading.1.markdown entity.name.section.markdown
+|   ^^^^^ markup.italic.markdown
+=========
+| <- markup.heading.1.markdown punctuation.definition.heading.setext.markdown - markup.italic
+|^^^^^^^^ markup.heading.1.markdown punctuation.definition.heading.setext.markdown - markup.italic
+|        ^ markup.heading.1.markdown meta.whitespace.newline.markdown - markup.italic
+
+Foo *bar
+| <- markup.heading.2.markdown entity.name.section.markdown
+|^^^^^^^^^ markup.heading.2.markdown entity.name.section.markdown
+|   ^^^^^ markup.italic.markdown
+---------
+| <- markup.heading.2.markdown punctuation.definition.heading.setext.markdown - markup.italic
+|^^^^^^^^ markup.heading.2.markdown punctuation.definition.heading.setext.markdown - markup.italic
+|        ^ markup.heading.2.markdown meta.whitespace.newline.markdown - markup.italic
+
+https://spec.commonmark.org/0.30/#example-81
+
+Foo *bar
+baz*
+| <- markup.heading.1.markdown entity.name.section.markdown markup.italic.markdown
+|^^^ markup.heading.1.markdown entity.name.section.markdown markup.italic.markdown
+|   ^ markup.heading.1.markdown entity.name.section.markdown - markup.italic
+====
+| <- markup.heading.1.markdown punctuation.definition.heading.setext.markdown
+|^^^ markup.heading.1.markdown punctuation.definition.heading.setext.markdown
+|   ^ markup.heading.1.markdown meta.whitespace.newline.markdown
+
+https://spec.commonmark.org/0.30/#example-82
+
+  Foo *bar
+baz*  
+| <- markup.heading.1.markdown entity.name.section.markdown markup.italic.markdown
+|^^^ markup.heading.1.markdown entity.name.section.markdown markup.italic.markdown
+|   ^^ markup.heading.1.markdown entity.name.section.markdown - markup.italic
+====
+| <- markup.heading.1.markdown punctuation.definition.heading.setext.markdown
+|^^^ markup.heading.1.markdown punctuation.definition.heading.setext.markdown
+|   ^ markup.heading.1.markdown meta.whitespace.newline.markdown
+
+https://spec.commonmark.org/0.30/#example-83
+
+Foo
+=
+| <- markup.heading.1.markdown punctuation.definition.heading.setext.markdown
+|^ markup.heading.1.markdown meta.whitespace.newline.markdown
+
+Foo
+-
+| <- markup.heading.2.markdown punctuation.definition.heading.setext.markdown
+|^ markup.heading.2.markdown meta.whitespace.newline.markdown
+
+https://spec.commonmark.org/0.30/#example-84
+
+   Foo
+---
+| <- markup.heading.2.markdown punctuation.definition.heading.setext.markdown
+|^^ markup.heading.2.markdown punctuation.definition.heading.setext.markdown
+|  ^ markup.heading.2.markdown meta.whitespace.newline.markdown
+
+  Foo
+-----
+| <- markup.heading.2.markdown punctuation.definition.heading.setext.markdown
+|^^^^ markup.heading.2.markdown punctuation.definition.heading.setext.markdown
+|    ^ markup.heading.2.markdown meta.whitespace.newline.markdown
+
+  Foo
+  ===
+| <- markup.heading.1.markdown - punctuation
+|^ markup.heading.1.markdown - punctuation
+| ^^^ markup.heading.1.markdown punctuation.definition.heading.setext.markdown
+|    ^ markup.heading.1.markdown meta.whitespace.newline.markdown
+
+https://spec.commonmark.org/0.30/#example-85
+
+    Foo
+    ---
+|^^^^^^^ markup.raw.block.markdown
+
+    Foo
+---
+| <- meta.separator.thematic-break.markdown - markup.heading
+|^^^ meta.separator.thematic-break.markdown - markup.heading
+
+https://spec.commonmark.org/0.30/#example-86
+
+Foo
+   ----      
+|^^^^^^^^^^^^^ markup.heading.2.markdown
+|^^ - punctuation
+|  ^^^^ punctuation.definition.heading.setext.markdown
+|      ^^^^^^^ - punctuation
+|            ^ meta.whitespace.newline.markdown
+
+https://spec.commonmark.org/0.30/#example-87
+
+Foo
+    ---
+| <- meta.paragraph.markdown - markup.heading
+|^^^^^^^ meta.paragraph.markdown - markup.heading
+
+https://spec.commonmark.org/0.30/#example-88
+
+Foo
+= =
+| <- meta.paragraph.markdown - markup.heading
+|^^^ meta.paragraph.markdown - markup.heading
+
+Foo
+--- -
+| <- meta.separator.thematic-break.markdown - markup.heading
+|^^^^^ meta.separator.thematic-break.markdown - markup.heading
+
+https://spec.commonmark.org/0.30/#example-89
+
+Foo  
+|  ^^ markup.heading.2.markdown entity.name.section.markdown - meta.hard-line-break
+-----
+| <- markup.heading.2.markdown punctuation.definition.heading.setext.markdown
+|^^^^ markup.heading.2.markdown punctuation.definition.heading.setext.markdown
+
+https://spec.commonmark.org/0.30/#example-90
+
+Foo\
+|  ^ markup.heading.2.markdown entity.name.section.markdown - meta.hard-line-break
+----
+| <- markup.heading.2.markdown punctuation.definition.heading.setext.markdown
+|^^^ markup.heading.2.markdown punctuation.definition.heading.setext.markdown
+
+https://spec.commonmark.org/0.30/#example-91
+
+`Foo
+----
+| <- markup.heading.2.markdown punctuation.definition.heading.setext.markdown
+|^^^ markup.heading.2.markdown punctuation.definition.heading.setext.markdown
+
+`Foo`
+----
+| <- markup.heading.2.markdown punctuation.definition.heading.setext.markdown
+|^^^ markup.heading.2.markdown punctuation.definition.heading.setext.markdown
+
+https://spec.commonmark.org/0.30/#example-92
+
+> Foo
+---
+| <- meta.separator.thematic-break.markdown - markup.heading
+|^^^ meta.separator.thematic-break.markdown - markup.heading
+
+https://spec.commonmark.org/0.30/#example-93
+
+> foo
+bar
+===
+| <- markup.quote.markdown - markup.heading
+|^^^ markup.quote.markdown - markup.heading
+
+https://spec.commonmark.org/0.30/#example-94
+- Foo
+---
+| <- meta.separator.thematic-break.markdown - markup.heading
+|^^^ meta.separator.thematic-break.markdown - markup.heading
+
+https://spec.commonmark.org/0.30/#example-95
+
+Foo
+Bar
+---
+| <- markup.heading.2.markdown punctuation.definition.heading.setext.markdown
+|^^ markup.heading.2.markdown punctuation.definition.heading.setext.markdown
+
+https://spec.commonmark.org/0.30/#example-96
+
+---
+Foo
+---
+| <- markup.heading.2.markdown punctuation.definition.heading.setext.markdown
+|^^ markup.heading.2.markdown punctuation.definition.heading.setext.markdown
+
+---
+Foo
+---
+Bar
+---
+| <- markup.heading.2.markdown punctuation.definition.heading.setext.markdown
+|^^ markup.heading.2.markdown punctuation.definition.heading.setext.markdown
+Baz
+
+---
+Foo
+---
+Bar
+---
+Baz
+| <- meta.paragraph.markdown
+|^^^ meta.paragraph.markdown
+
+https://spec.commonmark.org/0.30/#example-97
+
+====
+| <- meta.paragraph.markdown
+|^^^^ meta.paragraph.markdown
+
+https://spec.commonmark.org/0.30/#example-98
+
+---
+---
+| <- meta.separator.thematic-break.markdown - markup.heading
+|^^^ meta.separator.thematic-break.markdown - markup.heading
+
+https://spec.commonmark.org/0.30/#example-102
+
+\> foo
+------
+| <- markup.heading.2.markdown punctuation.definition.heading.setext.markdown
+|^^^^^ markup.heading.2.markdown punctuation.definition.heading.setext.markdown
 
 ```
 Fenced codeblocks are no no setext heading
@@ -1592,11 +1835,11 @@ graph n {}
 
 ```html+php
 <div></div>
-|^^^ entity.name.tag.block.any.html
+|^^^ entity.name.tag.block
 <?php
-| <- markup.raw.code-fence.html-php.markdown-gfm embedding.php text.html.basic meta.embedded.block.php punctuation.section.embedded.begin.php
+| <- markup.raw.code-fence.html-php.markdown-gfm embedding.php meta.embedded punctuation.section.embedded.begin.php
 var_dump(expression);
-| <- markup.raw.code-fence.html-php.markdown-gfm embedding.php text.html.basic meta.embedded.block.php source.php meta.function-call
+| <- markup.raw.code-fence.html-php.markdown-gfm embedding.php meta.embedded source.php meta.function-call
 ```
 | <- meta.code-fence.definition.end.html-php.markdown-gfm punctuation.definition.raw.code-fence.end.markdown
 |^^ meta.code-fence.definition.end.html-php.markdown-gfm punctuation.definition.raw.code-fence.end.markdown
@@ -1649,7 +1892,7 @@ for (var i = 0; i < 10; i++) {
 
 ```php
 var_dump(expression);
-| <- markup.raw.code-fence.php.markdown-gfm source.php meta.function-call.php
+| <- markup.raw.code-fence.php.markdown-gfm source.php meta.function-call
 ```
 | <- meta.code-fence.definition.end.php.markdown-gfm punctuation.definition.raw.code-fence.end.markdown
 |^^ meta.code-fence.definition.end.php.markdown-gfm punctuation.definition.raw.code-fence.end.markdown
@@ -1690,11 +1933,44 @@ unclosed_paren = (
 |^^ meta.code-fence.definition.end.shell-script.markdown-gfm punctuation.definition.raw.code-fence.end.markdown
 
 ```shell
+function foo () {
+| <- markup.raw.code-fence.shell.markdown-gfm meta.function.shell keyword.declaration.function.shell 
+}
+| <- markup.raw.code-fence.shell.markdown-gfm meta.function.shell meta.compound.shell punctuation.section.compound.end.shell
 
-| <- markup.raw.code-fence.shell-script.markdown-gfm source.shell.bash
+$ ls ~
+| <- markup.raw.code-fence.shell.markdown-gfm source.shell.interactive comment.other.shell
+| ^^ meta.function-call.identifier.shell variable.function.shell
+|   ^^ meta.function-call.arguments.shell
+
+output.txt
+| <- markup.raw.code-fence.shell.markdown-gfm source.shell.interactive - meta.function-call - variable
+|^^^^^^^^^ markup.raw.code-fence.shell.markdown-gfm source.shell.interactive - meta.function-call - variable
+
+$ ls \
+> /foo/
+| <- markup.raw.code-fence.shell.markdown-gfm source.shell.interactive.markdown comment.other.shell
+|^^^^^^^ markup.raw.code-fence.shell.markdown-gfm source.shell.interactive.markdown
+
+$ ls \
+> /foo/
+bar
+| <- markup.raw.code-fence.shell.markdown-gfm source.shell.interactive.markdown - meta.function-call
+|^^^ markup.raw.code-fence.shell.markdown-gfm source.shell.interactive.markdown - meta.function-call
+
+function foo () {}
+| <- markup.raw.code-fence.shell.markdown-gfm source.shell.interactive.markdown - meta.function
+|^^^^^^^^^^^^^^^^^^ markup.raw.code-fence.shell.markdown-gfm source.shell.interactive.markdown - meta.function
 ```
-| <- meta.code-fence.definition.end.shell-script.markdown-gfm punctuation.definition.raw.code-fence.end.markdown
-|^^ meta.code-fence.definition.end.shell-script.markdown-gfm punctuation.definition.raw.code-fence.end.markdown
+| <- meta.code-fence.definition.end.shell.markdown-gfm punctuation.definition.raw.code-fence.end.markdown
+|^^ meta.code-fence.definition.end.shell.markdown-gfm punctuation.definition.raw.code-fence.end.markdown
+
+   ```shell
+   $ ls
+|  ^^^^^ markup.raw.code-fence.shell.markdown-gfm source.shell
+|  ^ comment.other.shell
+|    ^^ meta.function-call variable.function
+   ```
 
 ```shell-script
 
@@ -1712,6 +1988,20 @@ FROM TableName
 ```
 | <- meta.code-fence.definition.end.sql.markdown-gfm punctuation.definition.raw.code-fence.end.markdown
 |^^ meta.code-fence.definition.end.sql.markdown-gfm punctuation.definition.raw.code-fence.end.markdown
+
+```ts
+declare type foo = 'bar'
+| <- markup.raw.code-fence.typescript.markdown-gfm source.ts
+```
+| <- meta.code-fence.definition.end.typescript.markdown-gfm punctuation.definition.raw.code-fence.end.markdown
+|^^ meta.code-fence.definition.end.typescript.markdown-gfm punctuation.definition.raw.code-fence.end.markdown
+
+```tsx
+
+| <- markup.raw.code-fence.tsx.markdown-gfm
+```
+| <- meta.code-fence.definition.end.tsx.markdown-gfm punctuation.definition.raw.code-fence.end.markdown
+|^^ meta.code-fence.definition.end.tsx.markdown-gfm punctuation.definition.raw.code-fence.end.markdown
 
 ```xml
 |^^^^^ meta.code-fence.definition.begin.xml
@@ -1797,7 +2087,7 @@ okay.
 | ^^^^^^^ meta.paragraph markup.italic - meta.disable-markdown
 
 </DIV>
-| ^^^ meta.disable-markdown meta.tag.block.any.html
+| ^^^ meta.disable-markdown meta.tag.block
 
 ## https://spec.commonmark.org/0.30/#example-153
 
@@ -1855,7 +2145,7 @@ int x = 33;
 | <- meta.disable-markdown - markup.italic - punctuation
 |^^^^^ meta.disable-markdown - markup.italic
 </Warning>
-| ^^^^^^^ meta.disable-markdown meta.tag.other.html entity.name.tag.other.html
+| ^^^^^^^ meta.disable-markdown meta.tag.other entity.name.tag.other.html
 
 ## https://spec.commonmark.org/0.30/#example-164
 
@@ -1914,7 +2204,7 @@ int x = 33;
 ## https://spec.commonmark.org/0.30/#example-169
 
 <pre language="haskell"><code>
-| ^^ meta.disable-markdown meta.tag.block.any.html entity.name.tag.block.any.html
+| ^^ meta.disable-markdown meta.tag.block entity.name.tag.block
 import Text.HTML.TagSoup
 
 main :: IO ()
@@ -1922,7 +2212,7 @@ main :: IO ()
 main = print $ parseTags tags
 </code></pre>
 | ^^^^^^^^^^^ meta.disable-markdown
-|        ^^^ meta.tag.block.any.html entity.name.tag.block.any.html
+|        ^^^ meta.tag.block entity.name.tag.block
 okay
 | <- - meta.disable-markdown
 
@@ -2160,7 +2450,7 @@ non-disabled markdown
 <div>this is HTML until there are two blank lines
 | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ meta.disable-markdown
 still <span>HTML</span>
-|      ^^^^ meta.tag.inline.any.html entity.name.tag.inline.any.html
+|      ^^^^ meta.tag.inline entity.name.tag.inline
 </div>
 | ^^^^ meta.disable-markdown
 
@@ -2168,14 +2458,14 @@ non-disabled markdown
 | <- - meta.disable-markdown
 
 <pre>nested tags don't count <pre>test</pre>
-|                                     ^^^^^^ meta.disable-markdown meta.tag.block.any.html
+|                                     ^^^^^^ meta.disable-markdown meta.tag.block
 non-disabled markdown
 | <- - meta.disable-markdown
 
 <div>nested tags don't count <div>test
 |                                 ^^^^^ meta.disable-markdown
 </div>
-| ^^^ meta.disable-markdown entity.name.tag.block.any.html
+| ^^^ meta.disable-markdown entity.name.tag.block
 
 non-disabled markdown
 | <- - meta.disable-markdown
@@ -2190,7 +2480,7 @@ non-disabled markdown
 
 <div>another</div> <span>disable</span> test
 | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ meta.disable-markdown
-|                  ^^^^^^ meta.tag.inline.any.html
+|                  ^^^^^^ meta.tag.inline
 disabled markdown
 | <- meta.disable-markdown
 
@@ -4285,7 +4575,7 @@ A list item can contain a heading:
 
 - Should be a setext heading!
   ---
-| ^^^ markup.list.unnumbered.markdown meta.separator.thematic-break.markdown punctuation.definition.thematic-break.markdown
+| ^^^ markup.list.unnumbered.markdown markup.heading.2.markdown punctuation.definition.heading.setext.markdown
 
 - Bar
   ---
@@ -4824,6 +5114,58 @@ So is this, with a empty second item:
          | <- markup.list.numbered.markdown markup.heading.2.markdown punctuation.definition.heading.begin.markdown
          |^^^^^^^^^^^^^^^^^^^^^^ markup.list.numbered.markdown markup.heading.2.markdown
 
+## https://custom-tests/list-blocks/items-with-setext-headings
+
+* list item
+global heading
+===
+| <- markup.list.unnumbered.markdown meta.paragraph.list.markdown
+|^^^ markup.list.unnumbered.markdown meta.paragraph.list.markdown
+
+* list item
+ global heading (matched as list item heading)
+ ===
+ | <- markup.list.unnumbered.markdown meta.paragraph.list.markdown
+ |^^^ markup.list.unnumbered.markdown meta.paragraph.list.markdown
+
+* list item
+  heading
+  ===
+  | <- markup.list.unnumbered.markdown markup.heading.1.markdown punctuation.definition.heading.setext.markdown
+  |^^ markup.list.unnumbered.markdown markup.heading.1.markdown punctuation.definition.heading.setext.markdown
+  
+  - list item
+
+  list item heading
+  ---
+  | <- markup.list.unnumbered.markdown markup.heading.2.markdown punctuation.definition.heading.setext.markdown
+  |^^ markup.list.unnumbered.markdown markup.heading.2.markdown punctuation.definition.heading.setext.markdown
+
+  + list item
+    
+    list item heading
+    ---
+    | <- markup.list.unnumbered.markdown markup.heading.2.markdown punctuation.definition.heading.setext.markdown
+    |^^ markup.list.unnumbered.markdown markup.heading.2.markdown punctuation.definition.heading.setext.markdown
+
+  - heading
+    ---
+    | <- markup.list.unnumbered.markdown markup.heading.2.markdown punctuation.definition.heading.setext.markdown
+    |^^ markup.list.unnumbered.markdown markup.heading.2.markdown punctuation.definition.heading.setext.markdown
+
+  - should not be a heading, but we can't handle it yet
+  --
+  | <- markup.list.unnumbered.markdown markup.heading.2.markdown punctuation.definition.heading.setext.markdown
+  |^ markup.list.unnumbered.markdown markup.heading.2.markdown punctuation.definition.heading.setext.markdown
+
+  - list item
+  - 
+  | <- markup.list.unnumbered.markdown markup.list.unnumbered.bullet.markdown punctuation.definition.list_item.markdown
+
+  - list item
+  = 
+  | <- markup.list.unnumbered.markdown meta.paragraph.list.markdown
+
 ## https://custom-tests/list-blocks/items-with-fenced-code-blocks-indented-by-tabs
 
   * foo
@@ -5354,7 +5696,7 @@ blah*
 | ^ punctuation.definition.raw.begin.markdown
 |      ^ punctuation.definition.raw.end.markdown
 |        ^ - punctuation
-|          ^^^^^^^^^^^^^^^^^^^ meta.tag.inline.a.html 
+|          ^^^^^^^^^^^^^^^^^^^ meta.tag.inline
 
 - list item
 
@@ -5615,7 +5957,7 @@ foo
 ## https://spec.commonmark.org/0.30/#example-344
 
 <a href="`">`
-| ^^^^^^^^^ meta.tag.inline.a
+| ^^^^^^^^^ meta.tag.inline
 |           ^ punctuation.definition.raw.begin
 
 | <- invalid.illegal.non-terminated.raw
@@ -6587,38 +6929,38 @@ testing__
 *italic text <span>HTML element</span> end of italic text*
 | <- punctuation.definition.italic
 |                                                        ^ punctuation.definition.italic
-|            ^^^^^^ meta.tag.inline.any.html
-|                              ^^^^^^^ meta.tag.inline.any.html
+|            ^^^^^^ meta.tag.inline
+|                              ^^^^^^^ meta.tag.inline
 
 _italic text <SPAN>HTML element</SPAN> end of italic text_
 | <- punctuation.definition.italic
 |                                                        ^ punctuation.definition.italic
-|            ^^^^^^ meta.tag.inline.any.html
-|                              ^^^^^^^ meta.tag.inline.any.html
+|            ^^^^^^ meta.tag.inline
+|                              ^^^^^^^ meta.tag.inline
 
 **bold text <span>HTML element</span> end of bold text**
 | <- punctuation.definition.bold
 |                                                     ^^ punctuation.definition.bold
-|           ^^^^^^ meta.tag.inline.any.html
-|                             ^^^^^^^ meta.tag.inline.any.html
+|           ^^^^^^ meta.tag.inline
+|                             ^^^^^^^ meta.tag.inline
 
 __bold text <span>HTML element</span> end of bold text__
 | <- punctuation.definition.bold
 |                                                     ^^ punctuation.definition.bold
-|           ^^^^^^ meta.tag.inline.any.html
-|                             ^^^^^^^ meta.tag.inline.any.html
+|           ^^^^^^ meta.tag.inline
+|                             ^^^^^^^ meta.tag.inline
 
 *italic text <span>HTML element</span> end of italic text*
 | <- punctuation.definition.italic
 |                                                        ^ punctuation.definition.italic
-|            ^^^^^^ meta.tag.inline.any.html
-|                              ^^^^^^^ meta.tag.inline.any.html
+|            ^^^^^^ meta.tag.inline
+|                              ^^^^^^^ meta.tag.inline
 
 _italic text <span>HTML element</span> end of italic text_
 | <- punctuation.definition.italic
 |                                                        ^ punctuation.definition.italic
-|            ^^^^^^ meta.tag.inline.any.html
-|                              ^^^^^^^ meta.tag.inline.any.html
+|            ^^^^^^ meta.tag.inline
+|                              ^^^^^^^ meta.tag.inline
 
 _test <span>text_ foobar</span>
 | <- punctuation
@@ -7577,3 +7919,311 @@ This is a [[wiki link]].
 |         ^^^^^^^^^^^^^ meta.link.reference.wiki.description.markdown
 |         ^^ punctuation.definition.link.begin.markdown
 |                    ^^ punctuation.definition.link.end.markdown
+
+
+# TEST: MATHJAX BLOCKS MARKUP #################################################
+
+  $$
+|^^^^ meta.paragraph.markdown - markup.math
+
+  $$ 1+1
+|^^^^^^^^ meta.paragraph.markdown - markup.math
+
+  $$ 1+1 
+  $$
+| ^^ markup.math.block.markdown text.tex.latex.embedded.markdown meta.environment.math.block.dollar.latex punctuation.definition.math.end.latex
+
+  $$ 1+1 $$
+|^ meta.paragraph.markdown markup.math.block.markdown - text.tex
+| ^^^^^^^^^ meta.paragraph.markdown markup.math.block.markdown text.tex.latex.embedded.markdown meta.environment.math.block.dollar.latex
+|          ^ meta.paragraph.markdown markup.math.block.markdown - text.tex
+| ^^ punctuation.definition.math.begin.latex
+|        ^^ punctuation.definition.math.end.latex
+
+  $$ 1+1 $$ followed by text
+|^ meta.paragraph.markdown - markup.math
+| ^^^^^^^^^ meta.paragraph.markdown markup.math.block.markdown text.tex.latex.embedded.markdown meta.environment.math.block.dollar.latex
+|          ^^^^^^^^^^^^^^^^^^ meta.paragraph.markdown - markup.math
+| ^^ punctuation.definition.math.begin.latex
+|        ^^ punctuation.definition.math.end.latex
+  
+  $$ 1+1 
+|^ meta.paragraph.markdown - markup.math
+| ^^^^^^^ meta.paragraph.markdown markup.math.block.markdown text.tex.latex.embedded.markdown meta.environment.math.block.dollar.latex
+| ^^ punctuation.definition.math.begin.latex
+  $$ followed by text
+| ^^ meta.paragraph.markdown markup.math.block.markdown text.tex.latex.embedded.markdown meta.environment.math.block.dollar.latex punctuation.definition.math.end.latex
+|   ^^^^^^^^^^^^^^^^^^ meta.paragraph.markdown - markup.math
+
+  Paragraph $$ 1+1 $$
+| ^^^^^^^^^^ meta.paragraph.markdown - markup.math
+|           ^^^^^^^^^ meta.paragraph.markdown markup.math.block.markdown text.tex.latex.embedded.markdown meta.environment.math.block.dollar.latex
+|                    ^ meta.paragraph.markdown - markup.math
+
+  Paragraph $$ 1+1 
+| ^^^^^^^^^^ meta.paragraph.markdown - markup.math
+|           ^^^^^^^ meta.paragraph.markdown markup.math.block.markdown text.tex.latex.embedded.markdown meta.environment.math.block.dollar.latex
+  $$
+|^^^ meta.paragraph.markdown markup.math.block.markdown text.tex.latex.embedded.markdown meta.environment.math.block.dollar.latex
+|   ^ meta.paragraph.markdown - markup.math
+
+$$
+1+1
+# Heading
+| <- markup.heading.1.markdown punctuation.definition.heading.begin.markdown
+|^^^^^^^^^ markup.heading.1.markdown
+
+$$ SeText heading 1
+===
+$$
+| <- meta.paragraph.markdown - markup.math
+
+$$ SeText heading 2
+| <- markup.heading.2.markdown entity.name.section.markdown
+---
+$$
+| <- meta.paragraph.markdown - markup.math
+
+$$ SeText heading 2
+| <- markup.heading.2.markdown entity.name.section.markdown
+---
+$$
+| <- meta.paragraph.markdown - markup.math
+
+Math blocks don't terminate paragraphs, but MathJax renders them as such
+ $$
+ 1+1
+ $$
+| <- meta.paragraph.markdown markup.math.block.markdown text.tex.latex.embedded.markdown meta.environment.math.block.dollar.latex
+|^^ meta.paragraph.markdown markup.math.block.markdown text.tex.latex.embedded.markdown meta.environment.math.block.dollar.latex punctuation.definition.math.end.latex
+|  ^ meta.paragraph.markdown markup.math.block.markdown - text.tex
+
+   $$
+| <- meta.paragraph.markdown markup.math.block.markdown - text.tex
+|^^ meta.paragraph.markdown markup.math.block.markdown - text.tex
+|  ^^^ meta.paragraph.markdown markup.math.block.markdown text.tex.latex.embedded.markdown meta.environment.math.block.dollar.latex
+|  ^^ punctuation.definition.math.begin.latex
+   1+1
+   $$
+| <- meta.paragraph.markdown markup.math.block.markdown text.tex.latex.embedded.markdown meta.environment.math.block.dollar.latex
+|^^^^ meta.paragraph.markdown markup.math.block.markdown text.tex.latex.embedded.markdown meta.environment.math.block.dollar.latex
+|  ^^ punctuation.definition.math.end.latex
+|    ^ meta.paragraph.markdown markup.math.block.markdown - text.tex
+
+$$
+| <- markup.math.block.markdown text.tex.latex.embedded.markdown meta.environment.math.block.dollar.latex punctuation.definition.math.begin.latex
+|^^ markup.math.block.markdown text.tex.latex.embedded.markdown meta.environment.math.block.dollar.latex
+|^ punctuation.definition.math.begin.latex
+| ^ - punctuation
+foo = 1 + 2 * \sqrt{a^2+b^2}
+| <- markup.math.block.markdown text.tex.latex.embedded.markdown meta.environment.math.block.dollar.latex variable.other.math.tex
+|^^^^^^^^^^^^^^^^^^^^^^^^^^^^ markup.math.block.markdown text.tex.latex.embedded.markdown meta.environment.math.block.dollar.latex
+|   ^ keyword.operator.math.tex
+|     ^ constant.numeric.math.tex
+|       ^ keyword.operator.math.tex
+|         ^ constant.numeric.math.tex
+|           ^ keyword.operator.math.tex
+|             ^^^^^ support.function.math.tex
+|                  ^^^^^^^^^ meta.group.brace.latex
+|                  ^ punctuation.definition.group.brace.begin.latex
+|                   ^ variable.other.math.tex
+|                    ^ keyword.operator.math.tex
+|                     ^ constant.numeric.math.tex
+|                      ^ keyword.operator.math.tex
+|                       ^ variable.other.math.tex
+|                        ^ keyword.operator.math.tex
+|                         ^ constant.numeric.math.tex
+|                          ^ punctuation.definition.group.brace.end.latex
+$$
+| <- markup.math.block.markdown text.tex.latex.embedded.markdown meta.environment.math.block.dollar.latex punctuation.definition.math.end.latex
+|^ markup.math.block.markdown text.tex.latex.embedded.markdown meta.environment.math.block.dollar.latex punctuation.definition.math.end.latex
+| ^ markup.math.block.markdown - text.tex
+
+    $$
+| <- markup.raw.block.markdown
+|^^^^^^ markup.raw.block.markdown
+
+1. Numbered List
+
+   $$
+   | <- markup.list.numbered.markdown - markup.math
+   |^^ markup.list.numbered.markdown - markup.math
+
+   $$ 1+1
+   | <- markup.list.numbered.markdown - markup.math
+   |^^^^^^ markup.list.numbered.markdown - markup.math
+
+   $$ 1+1 $$
+   | <- markup.list.numbered.markdown markup.math.block.markdown text.tex.latex.embedded.markdown meta.environment.math.block.dollar.latex punctuation.definition.math.begin.latex
+   |^^^^^^^^ markup.list.numbered.markdown markup.math.block.markdown text.tex.latex.embedded.markdown meta.environment.math.block.dollar.latex
+   |^ punctuation.definition.math.begin.latex
+   |      ^^ punctuation.definition.math.end.latex
+
+    $$ 1+1 $$ followed by text
+   | <- markup.list.numbered.markdown meta.paragraph.list.markdown - meta.math
+   |^^^^^^^^^ markup.list.numbered.markdown meta.paragraph.list.markdown markup.math.block.markdown text.tex.latex.embedded.markdown meta.environment.math.block.dollar.latex
+   |         ^^^^^^^^^^^^^^^^^^ markup.list.numbered.markdown meta.paragraph.list.markdown - markup.math
+   |^^ punctuation.definition.math.begin.latex
+   |       ^^ punctuation.definition.math.end.latex
+    
+    $$
+    1+1
+    # Heading
+    | <- markup.heading.1.markdown punctuation.definition.heading.begin.markdown
+    |^^^^^^^^^ markup.heading.1.markdown
+    
+    $$ SeText heading 1
+    ===
+    $$
+    | <- meta.paragraph.list.markdown - markup.math
+    
+    $$ SeText heading 2
+    | <- markup.heading.2.markdown entity.name.section.markdown
+    ---
+    $$
+    | <- meta.paragraph.list.markdown - markup.math
+    
+    $$ SeText heading 2
+    | <- markup.heading.2.markdown entity.name.section.markdown
+    ---
+    $$
+    | <- meta.paragraph.list.markdown - markup.math
+
+    $$ 1+1
+   | <- markup.list.numbered.markdown meta.paragraph.list.markdown - meta.math
+   |^^^^^^^ markup.list.numbered.markdown meta.paragraph.list.markdown markup.math.block.markdown text.tex.latex.embedded.markdown meta.environment.math.block.dollar.latex
+   |^^ punctuation.definition.math.begin.latex
+    $$ followed by text
+   |^^ markup.list.numbered.markdown meta.paragraph.list.markdown markup.math.block.markdown text.tex.latex.embedded.markdown meta.environment.math.block.dollar.latex
+   |  ^^^^^^^^^^^^^^^^^^ markup.list.numbered.markdown meta.paragraph.list.markdown - markup.math
+  
+   Paragraph $$ 1+1 $$
+   |^^^^^^^^^ markup.list.numbered.markdown meta.paragraph.list.markdown - markup.math
+   |         ^^^^^^^^^ markup.list.numbered.markdown meta.paragraph.list.markdown markup.math.block.markdown text.tex.latex.embedded.markdown meta.environment.math.block.dollar.latex
+   |                  ^ markup.list.numbered.markdown meta.paragraph.list.markdown - markup.math
+  
+   Paragraph $$ 1+1 
+   |^^^^^^^^^ markup.list.numbered.markdown meta.paragraph.list.markdown - markup.math
+   |         ^^^^^^^ markup.list.numbered.markdown meta.paragraph.list.markdown markup.math.block.markdown text.tex.latex.embedded.markdown meta.environment.math.block.dollar.latex
+    $$
+   |^^ markup.list.numbered.markdown meta.paragraph.list.markdown markup.math.block.markdown text.tex.latex.embedded.markdown meta.environment.math.block.dollar.latex
+   |  ^ markup.list.numbered.markdown meta.paragraph.list.markdown - markup.math
+
+   Math blocks don't terminate paragraphs, but MathJax renders them as such
+   $$
+   1+1
+   $$
+   | <- markup.list.numbered.markdown meta.paragraph.list.markdown markup.math.block.markdown text.tex.latex.embedded.markdown meta.environment.math.block.dollar.latex punctuation.definition.math.end.latex
+   |^ markup.list.numbered.markdown meta.paragraph.list.markdown markup.math.block.markdown text.tex.latex.embedded.markdown meta.environment.math.block.dollar.latex punctuation.definition.math.end.latex
+   | ^ markup.list.numbered.markdown meta.paragraph.list.markdown - text.tex
+
+   $$
+   | <- markup.list.numbered.markdown markup.math.block.markdown text.tex.latex.embedded.markdown meta.environment.math.block.dollar.latex punctuation.definition.math.begin.latex
+   |^ markup.list.numbered.markdown markup.math.block.markdown text.tex.latex.embedded.markdown meta.environment.math.block.dollar.latex punctuation.definition.math.begin.latex
+   foo = 1 + 2
+   | <- markup.list.numbered.markdown markup.math.block.markdown text.tex.latex.embedded.markdown meta.environment.math.block.dollar.latex variable.other.math.tex
+   $$
+   | <- markup.list.numbered.markdown markup.math.block.markdown text.tex.latex.embedded.markdown meta.environment.math.block.dollar.latex punctuation.definition.math.end.latex
+   |^ markup.list.numbered.markdown markup.math.block.markdown text.tex.latex.embedded.markdown meta.environment.math.block.dollar.latex punctuation.definition.math.end.latex
+
+# TEST: MATHJAX INLINE MARKUP #################################################
+
+# Math $1+1$ atx heading
+| <- markup.heading.1.markdown punctuation.definition.heading.begin.markdown
+|^^^^^^^^^^^^^^^^^^^^^^^^ markup.heading.1.markdown
+|      ^^^^^ markup.math.inline.markdown text.tex.latex.embedded.markdown meta.environment.math.block.dollar.latex
+
+Math $1+1$ setext heading
+| <- markup.heading.1.markdown
+|^^^^^^^^^^^^^^^^^^^^^^^^^ markup.heading.1.markdown
+|    ^^^^^ markup.math.inline.markdown text.tex.latex.embedded.markdown meta.environment.math.block.dollar.latex
+===
+| <- markup.heading.1.markdown punctuation.definition.heading.setext.markdown
+
+Math $1+1$ setext heading
+| <- markup.heading.2.markdown
+|^^^^^^^^^^^^^^^^^^^^^^^^^ markup.heading.2.markdown
+|    ^^^^^ markup.math.inline.markdown text.tex.latex.embedded.markdown meta.environment.math.block.dollar.latex
+---
+| <- markup.heading.2.markdown punctuation.definition.heading.setext.markdown
+
+This is math $1+1$ expression, but $ 1+1 $ ,$ 1+1$, $1+1 $ and 1+1$ or $1+1 are not.
+|            ^^^^^ meta.paragraph.markdown markup.math.inline.markdown text.tex.latex.embedded.markdown meta.environment.math.block.dollar.latex
+|            ^ punctuation.definition.math.begin.latex
+|             ^ constant.numeric.math.tex
+|              ^ keyword.operator.math.tex
+|               ^ constant.numeric.math.tex
+|                ^ punctuation.definition.math.end.latex
+|                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ meta.paragraph.markdown - markup.math
+
+Math with -$1$() $2$-$3$a or $4$_
+|          ^^^ meta.paragraph.markdown markup.math.inline.markdown text.tex.latex.embedded.markdown meta.environment.math.block.dollar.latex
+|             ^^^ meta.paragraph.markdown - markup.math
+|                ^^^ meta.paragraph.markdown markup.math.inline.markdown text.tex.latex.embedded.markdown meta.environment.math.block.dollar.latex
+|                   ^^^^^^^^^^^^^^ meta.paragraph.markdown - markup.math
+
+Use `\$` to display a dollar sign: $\sqrt{\$4}$
+|   ^^^^ meta.paragraph.markdown markup.raw.inline.markdown
+|                                  ^^^^^^^^^^^^ meta.paragraph.markdown markup.math.inline.markdown text.tex.latex.embedded.markdown meta.environment.math.block.dollar.latex
+|                                  ^ punctuation.definition.math.begin.latex
+|                                   ^^^^^ support.function.math.tex
+|                                        ^ punctuation.definition.group
+|                                         ^^ constant.character.escape
+|                                           ^ constant.numeric
+|                                            ^ punctuation.definition
+|                                             ^ punctuation.definition.math.end.latex
+
+No math <span>$</span>1+1$ or $1+1<span>$</span>
+|^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ meta.paragraph.markdown - markup.math
+
+No math $<br>1+1$ or $1+1<br>$
+|^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ meta.paragraph.markdown - markup.math
+
+Math $a<b$ but $a<b>a$ $a <b 10$ text
+|    ^^^^^ markup.math.inline.markdown
+|         ^^^^^^^^^^^^^ - markup.math
+|                      ^^^^^^^^^ markup.math.inline.markdown
+|                               ^^^^^^ - markup.math - meta.tag
+
+This is no $1+
+b$ math.
+| <- meta.paragraph.markdown - markup.math
+|^^^^^^^^ meta.paragraph.markdown - markup.math
+
+Handle incomplete $\sqrt{b$ expressions well.
+|                 ^^^^^^^^^ meta.paragraph.markdown markup.math.inline.markdown text.tex.latex.embedded.markdown meta.environment.math.block.dollar.latex
+|                 ^ punctuation.definition.math.begin.latex
+|                  ^^^^^ support.function.math.tex
+|                       ^^ meta.group.brace.latex
+|                         ^ punctuation.definition.math.end.latex - meta.group
+|                          ^ meta.paragraph.markdown - markup.math
+
+1. ordered list $\sqrt{b}$ equation $1+
+   |            ^^^^^^^^^^ markup.list.numbered.markdown meta.paragraph.list.markdown markup.math.inline.markdown text.tex.latex.embedded.markdown meta.environment.math.block.dollar.latex
+   |                      ^^^^^^^^^^^^^^ markup.list.numbered.markdown meta.paragraph.list.markdown - markup.math
+
+   Math $1+1$ in paragraph.
+   |    ^^^^^ markup.list.numbered.markdown meta.paragraph.list.markdown markup.math.inline.markdown text.tex.latex.embedded.markdown meta.environment.math.block.dollar.latex
+
+   No math <span>$</span>1+1$ or $1+1<span>$</span>
+   |^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ markup.list.numbered.markdown meta.paragraph.list.markdown - markup.math
+  
+   No math $<br>1+1$ or $1+1<br>$
+   |^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ markup.list.numbered.markdown meta.paragraph.list.markdown - markup.math
+   
+   Math $a<b$ but $a<b>a$ $a <b 10$ text
+   |    ^^^^^ markup.math.inline.markdown
+   |         ^^^^^^^^^^^^^ - markup.math
+   |                      ^^^^^^^^^ markup.math.inline.markdown
+   |                               ^^^^^^ - markup.math - meta.tag
+
+   +  unordered $\sqrt{b}$ equation
+      |         ^^^^^^^^^^ markup.list.numbered.markdown meta.paragraph.list.markdown markup.math.inline.markdown text.tex.latex.embedded.markdown meta.environment.math.block.dollar.latex
+
+   Handle incomplete $\sqrt{b$ expressions well.
+   |                 ^^^^^^^^^ meta.paragraph.list.markdown markup.math.inline.markdown text.tex.latex.embedded.markdown meta.environment.math.block.dollar.latex
+   |                 ^ punctuation.definition.math.begin.latex
+   |                  ^^^^^ support.function.math.tex
+   |                       ^^ meta.group.brace.latex
+   |                         ^ punctuation.definition.math.end.latex - meta.group
+   |                          ^ meta.paragraph.list.markdown - markup.math

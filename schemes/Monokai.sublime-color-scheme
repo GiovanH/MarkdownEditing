@@ -8,6 +8,13 @@
 	},
 	"rules": [
 
+		// Frontmatter
+		{
+			"name": "Frontmatter: Mapping Key Names",
+			"scope": "text.html.markdown meta.mapping.key string, text.html.markdown meta.mapping.key constant.language, text.html.markdown meta.mapping.key constant.numeric",
+			"foreground": "var(red2)"
+		},
+
 		// Basic Formattings
 		{
 			"name": "Markdown: Bold Content",
@@ -57,19 +64,19 @@
 		{
 			"name": "Markdown: Striked Content",
 			"scope": "text.html.markdown markup.strikethrough, text.html.markdown markup.strikethrough string",
-			"foreground": "var(grey)",
+			"foreground": "var(yellow5)",
 			"font_style": ""
 		},
 		{
 			"name": "Markdown: Striked Punctuations",
 			"scope": "text.html.markdown markup.strikethrough & (punctuation.definition | punctuation.separator | punctuation.definition.strikethrough | punctuation.definition.constant | punctuation.definition.image | punctuation.definition.link | punctuation.definition.metadata | punctuation.definition.bold | punctuation.definition.italic | punctuation.definition.string)",
-			"foreground": "var(grey)",
+			"foreground": "var(yellow5)",
 			"font_style": ""
 		},
 		{
 			"name": "Markdown: Striked URLs",
 			"scope": "text.html.markdown markup.strikethrough & (markup.underline.link.markdown | markup.underline.link.image.markdown)",
-			"foreground": "var(grey)"
+			"foreground": "var(yellow5)"
 		},
 		{
 			"name": "Markdown: Hard Line Breaks",

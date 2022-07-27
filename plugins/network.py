@@ -49,7 +49,7 @@ class QueueWorker(threading.Thread):
             self.fn(*work)
             self.queue.task_done()
 
-def do_work_helper(workfn, inputs, max_threads=8):
+def do_work_helper(workfn, inputs, max_threads=3):
     """Use threads and a queue to parallelize work done by a function."""
     # Create a queue. (Everything following has q in the namespace)
     q = queue.Queue()
@@ -98,40 +98,73 @@ class MdeConvertBareLinkToMdLinkCommand(MdeTextCommand):
         valid_regions = find_by_selector_in_regions(view, view.sel(), barelink_scope_name)
 
         def getInfoFromUrlJob(link_href):
+            suggested_title = suggest_default_link_name(
+                name="", link=url_redirects.get(link_href, link_href), image=False
+            )
+            url_titles[link_href] = suggested_title
+
+            doi = re.search(r"(10\.\d{4,5}/[\S]+[^;,.\s])", link_href)
+            if doi:
+                # Special case for DOI citations
+                doi_url = f"https://doi.org/" + doi.group(0)
+                try:
+                    print("Link", link_href, "is DOI", doi)
+                    req = urllib.request.Request(doi_url)
+                    req.add_header('Accept', 'text/x-bibliography')
+                    req.add_header('style', 'university-of-york-mla')
+                    resp = urllib.request.urlopen(req)
+                    url_titles[link_href] = resp.read().decode('utf-8').strip()
+                    return
+                except Exception as e:
+                    print(doi_url, e)
+                    pass
+
             try:
                 resp = urllib.request.urlopen(link_href)
             except urllib.error.HTTPError as e:
-                print(link_href)
+                print("Error opening", link_href, e)
                 if e.url != link_href:
                     print(link_href, "=/=", e.url, "Redirect?")
                     url_redirects[link_href] = e.url
+                    if e.url not in url_titles.keys():
+                        try:
+                            # Try to set our url to the best attempt of the redirect
+                            getInfoFromUrlJob(e.url)
+                        finally:
+                            # Use their suggestion if they had one
+                            url_titles[link_href] = url_titles[e.url]
                 raise
+
+            real_url = resp.geturl()
+
+            if real_url != link_href:
+                print(link_href, "=/=", real_url, "Redirect?")
+                url_redirects[link_href] = real_url
+                suggested_title = url_titles[link_href] = suggest_default_link_name(
+                    name="", link=real_url, image=False
+                )
+                print(link_href, "=/=", real_url, ", marked redirect, Suggested", suggested_title)
 
             content_type = {a: b for a, b in resp.getheaders()}.get("Content-Type")
             if content_type and not content_type.startswith("text"):
-                url_titles[link_href] = None
+                # url_titles[link_href] = None
                 raise TypeError(
                     "Link '{}' points to non-text content '{}'".format(link_href, content_type)
                 )
 
             match = re.search(rb"<title[^>]*>(?!<)(.+?)</title>", resp.read())
             if match:
-                url_titles[link_href] = re.sub(r"([\[\]])", r"\\\g<1>", match.group(1).decode())
+                url_titles[link_href] = re.sub(r"([\[\]])", r"\\\g<1>", match.group(1).decode()) + " (" + suggested_title + ")"
 
-            real_url = resp.geturl()
-            if real_url != link_href:
-                print(link_href, "=/=", real_url, "Redirect?")
-                url_redirects[link_href] = real_url
 
         def finish(*args):
             print(args)
-            view.erase_status("rawlinktomd")
+            print(url_titles)
+            print(url_redirects)
+            # view.erase_status("rawlinktomd")
 
             for link_region in valid_regions[::-1]:
                 link_href = view.substr(link_region)
-                suggested_title = suggest_default_link_name(
-                    "", url_redirects.get(link_href, link_href), False
-                )
                 # print("Getting info from", link_href)
                 # try:
                 #     getInfoFromUrlJob(link_href)
@@ -140,10 +173,9 @@ class MdeConvertBareLinkToMdLinkCommand(MdeTextCommand):
 
                 print("Processing", link_href)
                 if url_titles.get(link_href):
-                    title = url_titles[link_href] + " (" + suggested_title + ")"
+                    title = url_titles[link_href]
                 else:
-                    print("Link '{}' has NoneType as value".format(link_href))
-                    title = suggested_title
+                    raise TypeError("Link '{}' has NoneType as value; title worker job failed?".format(link_href))
 
                 link_href = url_redirects.get(link_href) or link_href
                 view.replace(edit, link_region, "[" + title + "](" + link_href + ")")

@@ -743,7 +743,7 @@ def convert2ref(view, edit, link_span, name, omit_name=False):
     link_for_name = getReferences2(view).get(name)
     if link_for_name:
         if link_for_name != link:
-            raise Exception("Tried to insert a different link with the same name")
+            raise Exception("Tried to insert a different link with the same name: %s != %s", (link_for_name, link))
         else:
             # Skip insertion (no need, name already exists with same link)
             return 0  # No insertion, no offset.

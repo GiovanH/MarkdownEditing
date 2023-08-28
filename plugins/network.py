@@ -12,12 +12,11 @@ import threading
 import queue
 import urllib
 import urllib.request
+import socket
 
 from .view import MdeTextCommand
 from .view import find_by_selector_in_regions
 from .references import suggest_default_link_name
-
-from .asynctasks import TaskQueue
 
 barelink_scope_name = "meta.link.inet.markdown"
 
@@ -73,7 +72,7 @@ def do_work_helper(workfn, inputs, max_threads=3):
         QueueWorker(q, _process).start()
 
     # Block until the queue is empty.
-    q.join()  
+    q.join()
 
     return results
 
@@ -97,12 +96,14 @@ class MdeConvertBareLinkToMdLinkCommand(MdeTextCommand):
         view = self.view
         valid_regions = find_by_selector_in_regions(view, view.sel(), barelink_scope_name)
 
-        def getInfoFromUrlJob(link_href):
+        def getInfoFromUrlJob(link_href, looped=False):
+            print("Suggesting title")
             suggested_title = suggest_default_link_name(
                 name="", link=url_redirects.get(link_href, link_href), image=False
             )
             url_titles[link_href] = suggested_title
 
+            print("Checking DOI")
             doi = re.search(r"(10\.\d{4,5}/[\S]+[^;,.\s])", link_href)
             if doi:
                 # Special case for DOI citations
@@ -120,21 +121,26 @@ class MdeConvertBareLinkToMdLinkCommand(MdeTextCommand):
                     pass
 
             try:
-                resp = urllib.request.urlopen(link_href)
+                print("Opening link")
+                resp = urllib.request.urlopen(link_href, timeout=5)
             except urllib.error.HTTPError as e:
                 print("Error opening", link_href, e)
-                if e.url != link_href:
+                if e.url != link_href and looped is False:
                     print(link_href, "=/=", e.url, "Redirect?")
                     url_redirects[link_href] = e.url
                     if e.url not in url_titles.keys():
                         try:
                             # Try to set our url to the best attempt of the redirect
-                            getInfoFromUrlJob(e.url)
+                            getInfoFromUrlJob(e.url, looped=True)
                         finally:
                             # Use their suggestion if they had one
                             url_titles[link_href] = url_titles[e.url]
                 raise
+            except socket.timeout as e:
+                print("Timed out opening", link_href, e)
+                raise
 
+            print("Getting real url")
             real_url = resp.geturl()
 
             if real_url != link_href:
@@ -183,28 +189,18 @@ class MdeConvertBareLinkToMdLinkCommand(MdeTextCommand):
         # This doesn't work, because we can't execute edit tasks after the run
         # function ends.
 
-        # thread_queue = TaskQueue()
-        # thread_queue.start()
+        # do_work_helper(
+        #     getInfoFromUrlJob,
+        #     [(view.substr(link_region),) for link_region in valid_regions]
+        # )
 
-        # for link_region in valid_regions:
-        #     link_href = view.substr(link_region)
-        #     thread_queue.execute_async(getTitleFromUrlJob, link_href)
-
-        # thread_queue.execute_async(finish)
-
-        do_work_helper(
-            getInfoFromUrlJob,
-            [(view.substr(link_region),) for link_region in valid_regions]
-        )
-
-        # for link_region in valid_regions:
-
-        #     link_href = view.substr(link_region)
-        #     try:
-        #         getTitleFromUrlJob(link_href)
-        #     except Exception:
-        #         traceback.print_exc()
-        #         pass
+        for link_region in valid_regions:
+            link_href = view.substr(link_region)
+            try:
+                getInfoFromUrlJob(link_href)
+            except Exception:
+                traceback.print_exc()
+                pass
 
         finish()
 
